@@ -1,4 +1,4 @@
-from helpers import SingletonMetaClass
+from v1.helpers import SingletonMetaClass
 
 class PubSub:
     __metaclass__ = SingletonMetaClass

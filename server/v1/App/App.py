@@ -19,9 +19,13 @@ from flask import Flask, Response, request, render_template, url_for, redirect, 
 
 from PubSub import PubSub
 
-
+from v1.EventManager import EventManager
+from v1.Clients.WebSocket import WebSocketClient
+from v1.helpers import SingletonMetaClass
 class App(object):
     """docstring for App"""
+    __metaclass__=SingletonMetaClass
+
     def __init__(self):
         super(App, self).__init__()
         app=app = Flask(__name__)
@@ -29,15 +33,11 @@ class App(object):
         self.app=app
         self.publisher=PubSub()
     """ Spawns the flask app and the routes """
-    def routes(self):
+    def applyRoutes(self):
         #handle the socketio pubsub
         def socketio(remaining):
-            try:
-                socketio_manage(request.environ, {'/pubsub': Transporters.WebSocket.WebSocketTransporter}, request)
-            except:
-                self.app.logger.error("Exception while handling socketio connection",
-                                 exc_info=True)
-            return Response()
+            self.em.dispatchEvent(SocketConnexion(request,self.app))
+
         self.app.add_url_rule('/socket.io/<path:remaining>',"socketio",socketio)
         #handle the http pubsub
         def api():
@@ -52,7 +52,11 @@ class App(object):
         self.app.add_url_rule('/',"index",hello)
 
     def run(self):
-        self.routes() #apply the routes before running
+
+        self.em=EventManager()
+        ws=WebSocketClient(self.em)
+
+        self.applyRoutes() #apply the routes before running
         PORT = 5000
         print 'Listening on http://127.0.0.1:%s and on port 10843 (flash policy server)' % PORT
         SocketIOServer(('', PORT), self.app, resource="socket.io").serve_forever()

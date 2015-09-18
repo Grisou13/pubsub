@@ -1,10 +1,11 @@
+from helpers import SingletonMetaClass
 class EventManager(object):
-    __metaclass_=helpers.
+    __metaclass_=SingletonMetaClass
     """docstring for EventManager"""
     def __init__(self):
         super(EventManager, self).__init__()
         self.listeners=[]
-    def run(self,Event):
+    def dispatchEvent(self,Event):
         for l in self.listeners:
             l.fire(Event)
     def addListener(self,l):
