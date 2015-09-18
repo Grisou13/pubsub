@@ -10,3 +10,5 @@ class SubscriberIsAdded(Event):
     name="subscriberIsAdded"
 class MessageIsPublished(Event):
     name="messageIsPublished"
+class SocketConnexionIsRequested(Event):
+    name="socketConnexionIsRequested"
